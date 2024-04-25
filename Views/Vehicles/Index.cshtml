@@ -1,0 +1,59 @@
+﻿@model IEnumerable<VehicleController.Models.Vehicle>
+
+<!-- Vehicle list table -->
+<table class="table">
+    <thead>
+        <tr>
+            <th>License Plate</th>
+            <th>Status ID</th>
+            <th>Average Speed</th>
+            <th>Actions</th>
+            <th>Message</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var vehicle in Model)
+        {
+            <tr>
+                <td>@vehicle.LicensePlate</td>
+                <td id="status-id-@vehicle.Id">@vehicle.StatusId</td>
+                <td>@vehicle.AverageSpeed</td>
+                <td>
+                    <button onclick="driveVehicle(@vehicle.Id)">Drive</button>
+                    <button onclick="stopVehicle(@vehicle.Id)">Stop</button>
+                    <button onclick="reverseVehicle(@vehicle.Id)">Reverse</button>
+                </td>
+                <td><span id="message-@vehicle.Id"></span></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- JavaScript to update status ID -->
+<script>
+    connection.on("VehicleDriven", function (vehicleId) {
+        // Update UI when a vehicle is driven
+        var statusElement = document.getElementById("status-id-" + vehicleId);
+        if (statusElement) {
+            statusElement.innerText = "1"; // Update status ID to "1" for "Driving"
+        }
+    });
+
+    connection.on("VehicleStopped", function (vehicleId) {
+        // Update UI when a vehicle is stopped
+        var statusElement = document.getElementById("status-id-" + vehicleId);
+        if (statusElement) {
+            statusElement.innerText = "2"; // Update status ID to "2" for "Stopped"
+        }
+    });
+
+    connection.on("VehicleReversed", function (vehicleId) {
+        // Update UI when a vehicle is reversed
+        var statusElement = document.getElementById("status-id-" + vehicleId);
+        if (statusElement) {
+            statusElement.innerText = "3"; // Update status ID to "3" for "Reversed"
+        }
+    });
+</script>
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/vehicle.js"></script>
