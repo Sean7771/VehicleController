@@ -2,21 +2,25 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using VehicleController.Data;
 using VehicleController.Models;
+using VehicleController.SignalR.Hubs;
 
 namespace VehicleController.Controllers
 {
     public class CarsController : Controller
     {
         private readonly VehicleDbContext _context;
+        private readonly IHubContext<CarsHub> _hubContext;
 
-        public CarsController(VehicleDbContext context)
+        public CarsController(VehicleDbContext context, IHubContext<CarsHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         // GET: Cars
@@ -67,6 +71,9 @@ namespace VehicleController.Controllers
             {
                 _context.Add(car);
                 await _context.SaveChangesAsync();
+
+                await _hubContext.Clients.All.SendAsync("CarCreated", car.VehicleId,car.MakeId,car.ModelId,car.NumberOfDoors,car.Color);
+
                 return RedirectToAction(nameof(Index));
             }
             ViewData["MakeId"] = new SelectList(_context.Makes, "Id", "Id", car.MakeId);
@@ -112,6 +119,8 @@ namespace VehicleController.Controllers
                 {
                     _context.Update(car);
                     await _context.SaveChangesAsync();
+
+                    await _hubContext.Clients.All.SendAsync("CarUpdated", car);
                 }
                 catch (DbUpdateConcurrencyException)
                 {

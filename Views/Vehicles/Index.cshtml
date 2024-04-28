@@ -7,6 +7,7 @@
             <th>License Plate</th>
             <th>Status ID</th>
             <th>Average Speed</th>
+            <th>Distance Driven</th>
             <th>Actions</th>
             <th>Message</th>
         </tr>
@@ -18,10 +19,11 @@
                 <td>@vehicle.LicensePlate</td>
                 <td id="status-id-@vehicle.Id">@vehicle.StatusId</td>
                 <td>@vehicle.AverageSpeed</td>
+                <td>@vehicle.DistanceDriven</td>
                 <td>
-                    <button onclick="driveVehicle(@vehicle.Id)">Drive</button>
-                    <button onclick="stopVehicle(@vehicle.Id)">Stop</button>
-                    <button onclick="reverseVehicle(@vehicle.Id)">Reverse</button>
+                    <button onclick="updateVehicleStatus(@vehicle.Id,1)">Drive</button>
+                    <button onclick="updateVehicleStatus(@vehicle.Id,2)">Reverse</button>
+                    <button onclick="updateVehicleStatus(@vehicle.Id,3)">Stop</button>
                 </td>
                 <td><span id="message-@vehicle.Id"></span></td>
             </tr>
@@ -29,31 +31,6 @@
     </tbody>
 </table>
 
-<!-- JavaScript to update status ID -->
-<script>
-    connection.on("VehicleDriven", function (vehicleId) {
-        // Update UI when a vehicle is driven
-        var statusElement = document.getElementById("status-id-" + vehicleId);
-        if (statusElement) {
-            statusElement.innerText = "1"; // Update status ID to "1" for "Driving"
-        }
-    });
-
-    connection.on("VehicleStopped", function (vehicleId) {
-        // Update UI when a vehicle is stopped
-        var statusElement = document.getElementById("status-id-" + vehicleId);
-        if (statusElement) {
-            statusElement.innerText = "2"; // Update status ID to "2" for "Stopped"
-        }
-    });
-
-    connection.on("VehicleReversed", function (vehicleId) {
-        // Update UI when a vehicle is reversed
-        var statusElement = document.getElementById("status-id-" + vehicleId);
-        if (statusElement) {
-            statusElement.innerText = "3"; // Update status ID to "3" for "Reversed"
-        }
-    });
-</script>
+<script src="~/js/signalr/jquery-3.6.0.min.js"></script>
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script src="~/js/vehicle.js"></script>

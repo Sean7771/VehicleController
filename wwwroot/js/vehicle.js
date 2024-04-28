@@ -8,45 +8,21 @@ connection.start().then(function () {
     console.error("SignalR connection error: ", err.toString());
 });
 
-function driveVehicle(vehicleId) {
-    connection.invoke("DriveVehicle", vehicleId).catch(function (err) {
-        console.error("Error invoking DriveVehicle: ", err.toString());
+function updateVehicleStatus(vehicleId, status) {
+    connection.invoke("UpdateVehicleStatus", vehicleId, status).catch(function (err) {
+        console.error("Error invoking UpdateVehicleStatus: ", err.toString());
     });
 }
 
-function stopVehicle(vehicleId) {
-    connection.invoke("StopVehicle", vehicleId).catch(function (err) {
-        console.error("Error invoking StopVehicle: ", err.toString());
-    });
+connection.on("VehicleStatusUpdated", function (vehicleId, status) {
+    updateVehicleStatusAndMessage(vehicleId, status, "Vehicle status updated successfully!");
+    var messageElement = document.getElementById("message-" + vehicleId);
+    if (messageElement) {
+        messageElement.innerText = "Vehicle status updated successfully!";
+    }
+});
+
+function updateVehicleStatusAndMessage(vehicleId, status, message) {
+    $(`#status-id-${vehicleId}`).html(status);
+    $(`#message-${vehicleId}`).html(message);
 }
-
-function reverseVehicle(vehicleId) {
-    connection.invoke("ReverseVehicle", vehicleId).catch(function (err) {
-        console.error("Error invoking ReverseVehicle: ", err.toString());
-    });
-}
-
-connection.on("VehicleDriven", function (vehicleId) {
-    
-    var messageElement = document.getElementById("message-" + vehicleId);
-    if (messageElement) {
-        messageElement.innerText = "Vehicle driven successfully!";
-    }
-});
-
-connection.on("VehicleStopped", function (vehicleId) {
-    
-    var messageElement = document.getElementById("message-" + vehicleId);
-    if (messageElement) {
-        messageElement.innerText = "Vehicle stopped successfully!";
-    }
-});
-
-connection.on("VehicleReversed", function (vehicleId) {
-    
-    var messageElement = document.getElementById("message-" + vehicleId);
-    if (messageElement) {
-        messageElement.innerText = "Vehicle reversed successfully!";
-    }
-    
-});

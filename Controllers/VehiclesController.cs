@@ -27,44 +27,7 @@ namespace VehicleController.Controllers
         {
             var vehicles = await _dbContext.Vehicles.ToListAsync();
             return View(vehicles);
-        }
-
-        public async Task<IActionResult> Drive(int vehicleId)
-        {
-            var vehicle = await _dbContext.Vehicles.FindAsync(vehicleId);
-            if (vehicle != null)
-            {
-                
-                vehicle.StatusId = 1;
-                await _hubContext.Clients.All.SendAsync("VehicleDriven", vehicleId);
-                await _dbContext.SaveChangesAsync(); 
-            }
-            return RedirectToAction("Index");
-        }
-
-        public async Task<IActionResult> Stop(int vehicleId)
-        {
-            var vehicle = await _dbContext.Vehicles.FindAsync(vehicleId);
-            if (vehicle != null)
-            {
-                vehicle.StatusId = 2;
-                await _hubContext.Clients.All.SendAsync("VehicleStopped", vehicleId);
-                await _dbContext.SaveChangesAsync();
-            }
-            return RedirectToAction("Index");
-        }
-
-        public async Task<IActionResult> Reverse(int vehicleId)
-        {
-            var vehicle = await _dbContext.Vehicles.FindAsync(vehicleId);
-            if (vehicle != null)
-            {
-                vehicle.StatusId = 3;
-                await _hubContext.Clients.All.SendAsync("VehicleReversed", vehicleId);
-                await _dbContext.SaveChangesAsync();
-            }
-            return RedirectToAction("Index");
-        }
+        } 
     }
 }
 

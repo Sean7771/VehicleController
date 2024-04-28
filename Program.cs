@@ -31,4 +31,5 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Vehicles}/{action=Index}/{id?}");
 app.MapHub<VehicleHub>("/vehicleHub");
+
 app.Run();
