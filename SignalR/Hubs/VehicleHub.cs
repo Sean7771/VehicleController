@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Globalization;
@@ -16,7 +17,6 @@ namespace VehicleController.SignalR.Hubs
         public VehicleHub(VehicleDbContext dbContext)
         {
             _dbContext = dbContext;
-
         }
         public enum eStatus
         {
@@ -36,7 +36,7 @@ namespace VehicleController.SignalR.Hubs
                     vehicle.StatusId = (int)status;
 
                    
-                   //Trip trip =  CreateOrUpdateTrip(vehicle, status);
+                   Trip trip =  CreateOrUpdateTrip(vehicle, status);
 
                     
                     await _dbContext.SaveChangesAsync();
@@ -52,43 +52,91 @@ namespace VehicleController.SignalR.Hubs
                 throw;
             }
         }
-
-
         private Trip CreateOrUpdateTrip(Vehicle vehicle, eStatus status)
         {
-            Trip trip = null;
-
+            Trip trip = new Trip();
             switch (status)
             {
                 case eStatus.Driving:
                 case eStatus.Reversing:
-                    // Create a new trip
-                    trip = new Trip
-                    {
-                        VehicleId = vehicle.Id,
-                        StartTime = DateTime.UtcNow,
-                        EndTime  = null,
-                        Distance = 0 
-                    };
+                    trip.VehicleId = vehicle.Id;
+                    trip.StartTime = DateTime.UtcNow;
+                    trip.EndTime = DateTime.UtcNow.AddMilliseconds(1);
+                    trip.Distance = 0;// Assuming initial distance is 0 when the trip starts
+
                     _dbContext.Trips.Add(trip);
                     break;
                 case eStatus.Stopped:
-                    // Find the active trip and update end time
-                    var activeTrip = _dbContext.Trips.FirstOrDefault(t => t.VehicleId == vehicle.Id && t.EndTime == null);
+                    var activeTrip = _dbContext.Trips.FirstOrDefault(t => t.VehicleId == vehicle.Id && t.StartTime != null && t.Distance == 0);
+
                     if (activeTrip != null)
                     {
                         activeTrip.EndTime = DateTime.UtcNow;
-                        // Calculate distance traveled based on the time elapsed
                         var timeElapsed = activeTrip.EndTime - activeTrip.StartTime;
-                        activeTrip.Distance = (decimal)CalculateDistanceTraveled(timeElapsed, vehicle.AverageSpeed); // You need to implement this method
+                        activeTrip.Distance = (decimal)CalculateDistanceTraveled(timeElapsed, vehicle.AverageSpeed);
+                        _dbContext.Trips.Update(activeTrip);
+                    }
+                    else
+                    {
+                        Console.WriteLine("No active trip found");
                     }
                     break;
                 default:
                     break;
             }
-
             return trip;
         }
+
+        //private Trip CreateOrUpdateTrip(Vehicle vehicle, eStatus status)
+        //{
+
+        //    Trip trip = null;
+        //    DateTime? startDrivingTime = null; // Variable to store start time for driving
+
+        //    switch (status)
+        //    {
+        //        case eStatus.Driving:
+        //        case eStatus.Reversing:
+        //            // Record the start time for driving or reversing
+        //            startDrivingTime = DateTime.UtcNow;
+        //            break;
+        //        case eStatus.Stopped:
+        //            // Find the active trip and update end time
+        //            var activeTrip = _dbContext.Trips.FirstOrDefault(t => t.VehicleId == vehicle.Id && t.StartTime != null && t.EndTime == null);
+
+        //            if (activeTrip != null)
+        //            {
+        //                activeTrip.EndTime = DateTime.UtcNow;
+        //                // Calculate distance traveled based on the time elapsed
+        //                var timeElapsed = activeTrip.EndTime - activeTrip.StartTime;
+        //                activeTrip.Distance = (decimal)CalculateDistanceTraveled(timeElapsed, vehicle.AverageSpeed); 
+        //            }
+        //            else
+        //            {
+        //                // Create a new trip if no active trip found and startDrivingTime is set
+        //                if (startDrivingTime != null)
+        //                {
+        //                    trip = new Trip
+        //                    {
+        //                        VehicleId = vehicle.Id,
+        //                        StartTime = startDrivingTime.Value,
+        //                        EndTime = DateTime.UtcNow,
+        //                        Distance = 0 // Assuming initial distance is 0 when the trip starts
+        //                    };
+        //                    _dbContext.Trips.Add(trip);
+        //                }
+        //                else
+        //                {
+        //                    Console.WriteLine("No active trip found.");
+        //                }
+        //            }
+        //            break;
+        //        default:
+        //            break;
+        //    }
+
+        //    return trip;
+        //}
         private double CalculateDistanceTraveled(TimeSpan? timeTraveled, decimal averageSpeed)
         {
             if (timeTraveled.HasValue)
