@@ -68,7 +68,7 @@ namespace VehicleController.SignalR.Hubs
                         VehicleId = vehicle.Id,
                         StartTime = DateTime.UtcNow,
                         EndTime  = null,
-                        Distance = 0 // You need to calculate this based on your logic
+                        Distance = 0 
                     };
                     _dbContext.Trips.Add(trip);
                     break;
@@ -93,16 +93,12 @@ namespace VehicleController.SignalR.Hubs
         {
             if (timeTraveled.HasValue)
             {
-                // Convert averageSpeed to double before calculation
+                
                 double averageSpeedDouble = Convert.ToDouble(averageSpeed);
-
-                // Calculate distance traveled based on time traveled and average speed
-                // For simplicity, let's assume distance traveled is equal to average speed times time traveled
                 return averageSpeedDouble * timeTraveled.Value.TotalHours;
             }
             else
             {
-                // If timeTraveled is null, return 0 distance
                 return 0;
             }
         }
