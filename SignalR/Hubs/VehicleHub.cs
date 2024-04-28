@@ -86,57 +86,6 @@ namespace VehicleController.SignalR.Hubs
             }
             return trip;
         }
-
-        //private Trip CreateOrUpdateTrip(Vehicle vehicle, eStatus status)
-        //{
-
-        //    Trip trip = null;
-        //    DateTime? startDrivingTime = null; // Variable to store start time for driving
-
-        //    switch (status)
-        //    {
-        //        case eStatus.Driving:
-        //        case eStatus.Reversing:
-        //            // Record the start time for driving or reversing
-        //            startDrivingTime = DateTime.UtcNow;
-        //            break;
-        //        case eStatus.Stopped:
-        //            // Find the active trip and update end time
-        //            var activeTrip = _dbContext.Trips.FirstOrDefault(t => t.VehicleId == vehicle.Id && t.StartTime != null && t.EndTime == null);
-
-        //            if (activeTrip != null)
-        //            {
-        //                activeTrip.EndTime = DateTime.UtcNow;
-        //                // Calculate distance traveled based on the time elapsed
-        //                var timeElapsed = activeTrip.EndTime - activeTrip.StartTime;
-        //                activeTrip.Distance = (decimal)CalculateDistanceTraveled(timeElapsed, vehicle.AverageSpeed); 
-        //            }
-        //            else
-        //            {
-        //                // Create a new trip if no active trip found and startDrivingTime is set
-        //                if (startDrivingTime != null)
-        //                {
-        //                    trip = new Trip
-        //                    {
-        //                        VehicleId = vehicle.Id,
-        //                        StartTime = startDrivingTime.Value,
-        //                        EndTime = DateTime.UtcNow,
-        //                        Distance = 0 // Assuming initial distance is 0 when the trip starts
-        //                    };
-        //                    _dbContext.Trips.Add(trip);
-        //                }
-        //                else
-        //                {
-        //                    Console.WriteLine("No active trip found.");
-        //                }
-        //            }
-        //            break;
-        //        default:
-        //            break;
-        //    }
-
-        //    return trip;
-        //}
         private double CalculateDistanceTraveled(TimeSpan? timeTraveled, decimal averageSpeed)
         {
             if (timeTraveled.HasValue)
