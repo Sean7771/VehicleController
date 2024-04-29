@@ -15,12 +15,12 @@ namespace VehicleController.Controllers
     public class CarsController : Controller
     {
         private readonly VehicleDbContext _context;
-        private readonly IHubContext<CarsHub> _hubContext;
+        
 
-        public CarsController(VehicleDbContext context, IHubContext<CarsHub> hubContext)
+        public CarsController(VehicleDbContext context )
         {
             _context = context;
-            _hubContext = hubContext;
+            
         }
 
         // GET: Cars
@@ -72,7 +72,7 @@ namespace VehicleController.Controllers
                 _context.Add(car);
                 await _context.SaveChangesAsync();
 
-                await _hubContext.Clients.All.SendAsync("CarCreated", car.VehicleId,car.MakeId,car.ModelId,car.NumberOfDoors,car.Color);
+                
 
                 return RedirectToAction(nameof(Index));
             }
@@ -120,7 +120,7 @@ namespace VehicleController.Controllers
                     _context.Update(car);
                     await _context.SaveChangesAsync();
 
-                    await _hubContext.Clients.All.SendAsync("CarUpdated", car);
+                    
                 }
                 catch (DbUpdateConcurrencyException)
                 {

@@ -8,12 +8,13 @@ using System.Threading.Tasks;
 using VehicleController.Data;
 using VehicleController.Models;
 
+
 namespace VehicleController.SignalR.Hubs
 {
     public class VehicleHub : Hub
     {
         private readonly VehicleDbContext _dbContext;
-
+        
         public VehicleHub(VehicleDbContext dbContext)
         {
             _dbContext = dbContext;
