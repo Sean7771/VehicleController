@@ -8,21 +8,23 @@ connection.start().then(function () {
     console.error("SignalR connection error: ", err.toString());
 });
 
-function updateVehicleStatus(vehicleId, status) {
+function updateVehicleStatus(vehicleId, status, distanceDriven, distanceReversed) {
     connection.invoke("UpdateVehicleStatus", vehicleId, status).catch(function (err) {
         console.error("Error invoking UpdateVehicleStatus: ", err.toString());
     });
 }
 
-connection.on("VehicleStatusUpdated", function (vehicleId, status) {
+connection.on("VehicleStatusUpdated", function (vehicleId, status, distanceDriven, distanceReversed) {
     updateVehicleStatusAndMessage(vehicleId, status, "Vehicle status updated successfully!");
-    var messageElement = document.getElementById("message-" + vehicleId);
-    if (messageElement) {
-        messageElement.innerText = "Vehicle status updated successfully!";
-    }
+    updateDistanceInfo(vehicleId, distanceDriven, distanceReversed);
 });
 
 function updateVehicleStatusAndMessage(vehicleId, status, message) {
     $(`#status-id-${vehicleId}`).html(status);
     $(`#message-${vehicleId}`).html(message);
+}
+
+function updateDistanceInfo(vehicleId, distanceDriven, distanceReversed) {
+    $(`#distance-driven-${vehicleId}`).html(distanceDriven);
+    $(`#distance-reversed-${vehicleId}`).html(distanceReversed);
 }

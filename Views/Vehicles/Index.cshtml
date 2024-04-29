@@ -8,6 +8,7 @@
             <th>Status ID</th>
             <th>Average Speed</th>
             <th>Distance Driven</th>
+            <th>Distance Reversed</th>
             <th>Actions</th>
             <th>Message</th>
         </tr>
@@ -19,7 +20,8 @@
                 <td>@vehicle.LicensePlate</td>
                 <td id="status-id-@vehicle.Id">@vehicle.StatusId</td>
                 <td>@vehicle.AverageSpeed</td>
-                <td>@vehicle.DistanceDriven</td>
+                <td id="distance-driven-@vehicle.Id">@vehicle.DistanceDriven</td>
+                <td id="distance-reversed-@vehicle.Id">@vehicle.DistanceReversed</td>
                 <td>
                     <button onclick="updateVehicleStatus(@vehicle.Id,1)">Drive</button>
                     <button onclick="updateVehicleStatus(@vehicle.Id,2)">Reverse</button>

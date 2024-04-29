@@ -100,9 +100,12 @@ namespace VehicleController.Data
 
                 entity.Property(e => e.Distance).HasColumnType("decimal(10, 2)");
 
-                entity.Property(e => e.EndTime).HasColumnType("datetime");
-
                 entity.Property(e => e.StartTime).HasColumnType("datetime");
+
+                entity.Property(e => e.EndTime).HasColumnType("datetime").IsRequired(false);
+
+                
+                entity.Property(e => e.TripType).HasMaxLength(20).IsUnicode(false).IsRequired(false);
 
                 entity.HasOne(d => d.Vehicle)
                     .WithMany(p => p.Trips)

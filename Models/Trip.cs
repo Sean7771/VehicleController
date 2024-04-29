@@ -8,9 +8,11 @@ namespace VehicleController.Models
         public int Id { get; set; }
         public int? VehicleId { get; set; }
         public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public DateTime? EndTime { get; set; }
         public decimal Distance { get; set; }
-        
+
+        public string TripType { get; set; }
+
         public virtual Vehicle? Vehicle { get; set; }
     }
 }
