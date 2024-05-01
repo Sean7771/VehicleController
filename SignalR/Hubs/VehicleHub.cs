@@ -14,10 +14,12 @@ namespace VehicleController.SignalR.Hubs
     public class VehicleHub : Hub
     {
         private readonly VehicleDbContext _dbContext;
-        
-        public VehicleHub(VehicleDbContext dbContext)
+        private readonly IHubContext<VehicleHub> _hubContext;
+
+        public VehicleHub(VehicleDbContext dbContext, IHubContext<VehicleHub> hubContext)
         {
             _dbContext = dbContext;
+            _hubContext = hubContext;
         }
         public enum eStatus
         {
@@ -39,7 +41,7 @@ namespace VehicleController.SignalR.Hubs
 
                     await _dbContext.SaveChangesAsync();
 
-                    await Clients.All.SendAsync("VehicleStatusUpdated", vehicleId, status.ToString(), vehicle.DistanceDriven, vehicle.DistanceReversed); ;
+                    await _hubContext.Clients.All.SendAsync("VehicleStatusUpdated", vehicleId, status.ToString(), vehicle.DistanceDriven, vehicle.DistanceReversed); ;
                 }
             }
             catch (Exception ex)

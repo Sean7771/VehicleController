@@ -1,10 +1,9 @@
 ﻿@model IEnumerable<VehicleController.Models.Make>
-
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Makes</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -12,24 +11,28 @@
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th></th>
+            <th>Make Name</th>
+            <th>Actions</th>
         </tr>
     </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+    <tbody id="makeTableBody">
+        @foreach (var make in Model)
+        {
+            <tr id="make-@make.Id">
+                <td>@make.Name</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@make.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@make.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@make.Id">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+
+@section Scripts {
+    <script src="~/js/signalr/jquery-3.6.0.min.js"></script>
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
+    <script src="~/js/makes.js"></script>
+}

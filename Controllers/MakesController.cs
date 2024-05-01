@@ -1,42 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VehicleController.Data;
 using VehicleController.Models;
+using VehicleController.SignalR.Hubs;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace VehicleController.Controllers
 {
     public class MakesController : Controller
     {
         private readonly VehicleDbContext _context;
+        private readonly IHubContext<MakesHub> _hubContext;
 
-        public MakesController(VehicleDbContext context)
+        public MakesController(VehicleDbContext context, IHubContext<MakesHub> hubContext)
         {
             _context = context;
+            _hubContext = hubContext;
         }
 
         // GET: Makes
         public async Task<IActionResult> Index()
         {
-              return _context.Makes != null ? 
-                          View(await _context.Makes.ToListAsync()) :
-                          Problem("Entity set 'VehicleDbContext.Makes'  is null.");
+            var makes = await _context.Makes.ToListAsync();
+            if (makes == null)
+            {
+                return Problem("Entity set 'VehicleDbContext.Makes' is null.");
+            }
+            return View(makes);
         }
 
         // GET: Makes/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Makes == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var make = await _context.Makes
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var make = await _context.Makes.FirstOrDefaultAsync(m => m.Id == id);
             if (make == null)
             {
                 return NotFound();
@@ -52,8 +56,6 @@ namespace VehicleController.Controllers
         }
 
         // POST: Makes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] Make make)
@@ -62,6 +64,9 @@ namespace VehicleController.Controllers
             {
                 _context.Add(make);
                 await _context.SaveChangesAsync();
+
+                await _hubContext.Clients.All.SendAsync("MakeAdded", make.Name, make.Id);
+
                 return RedirectToAction(nameof(Index));
             }
             return View(make);
@@ -70,7 +75,7 @@ namespace VehicleController.Controllers
         // GET: Makes/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Makes == null)
+            if (id == null)
             {
                 return NotFound();
             }
@@ -84,8 +89,6 @@ namespace VehicleController.Controllers
         }
 
         // POST: Makes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Make make)
@@ -101,6 +104,8 @@ namespace VehicleController.Controllers
                 {
                     _context.Update(make);
                     await _context.SaveChangesAsync();
+
+                    await _hubContext.Clients.All.SendAsync("MakeEdited", make.Name, make.Id);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -113,6 +118,7 @@ namespace VehicleController.Controllers
                         throw;
                     }
                 }
+
                 return RedirectToAction(nameof(Index));
             }
             return View(make);
@@ -121,13 +127,12 @@ namespace VehicleController.Controllers
         // GET: Makes/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Makes == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var make = await _context.Makes
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var make = await _context.Makes.FirstOrDefaultAsync(m => m.Id == id);
             if (make == null)
             {
                 return NotFound();
@@ -141,23 +146,23 @@ namespace VehicleController.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Makes == null)
-            {
-                return Problem("Entity set 'VehicleDbContext.Makes'  is null.");
-            }
             var make = await _context.Makes.FindAsync(id);
-            if (make != null)
+            if (make == null)
             {
-                _context.Makes.Remove(make);
+                return NotFound();
             }
-            
+
+            _context.Makes.Remove(make);
             await _context.SaveChangesAsync();
+
+            await _hubContext.Clients.All.SendAsync("MakeDeleted", id);
+
             return RedirectToAction(nameof(Index));
         }
 
         private bool MakeExists(int id)
         {
-          return (_context.Makes?.Any(e => e.Id == id)).GetValueOrDefault();
+            return _context.Makes.Any(e => e.Id == id);
         }
     }
 }
